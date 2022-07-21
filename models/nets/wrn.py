@@ -67,7 +67,8 @@ class NetworkBlock(nn.Module):
     def forward(self, x):
         return self.layer(x)
 
-
+# import torchvision.models as models
+# models.wide_resnet50_2()
 class WideResNet(nn.Module):
     def __init__(self, first_stride, num_classes, depth=28, widen_factor=2, drop_rate=0.0, is_remix=False):
         super(WideResNet, self).__init__()

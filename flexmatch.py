@@ -266,9 +266,9 @@ if __name__ == "__main__":
     '''
     parser.add_argument('--save_dir', type=str, default='./saved_models',help="the path to save model")
     parser.add_argument('-sn', '--save_name', type=str, default='flexmatch')
-    parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--load_path', type=str, default=None,help="the path to load model")
-    parser.add_argument('-o', '--overwrite', action='store_true')
+    parser.add_argument('--resume', action='store_true',default=True)
+    parser.add_argument('--load_path', type=str, default='./saved_models/flexmatch/model_best.pth',help="the path to load model")
+    parser.add_argument('-o', '--overwrite', action='store_true',default=True)
     parser.add_argument('--use_tensorboard', action='store_true', help='Use tensorboard to plot and save curves, otherwise save the curves locally.')
 
     '''
@@ -281,10 +281,10 @@ if __name__ == "__main__":
     parser.add_argument('--num_eval_iter', type=int, default=2000,#5000
                         help='evaluation frequency')
     parser.add_argument('-nl', '--num_labels', type=int, default=40,help="the number of labeled samples")#40
-    parser.add_argument('-bsz', '--batch_size', type=int, default=64)
-    parser.add_argument('--uratio', type=int, default=7,
+    parser.add_argument('-bsz', '--batch_size', type=int, default=14)
+    parser.add_argument('--uratio', type=int, default=1,
                         help='the ratio of unlabeled data to labeld data in each mini-batch')
-    parser.add_argument('--eval_batch_size', type=int, default=512,
+    parser.add_argument('--eval_batch_size', type=int, default=16,#512
                         help='batch size of evaluation data loader (it does not affect the accuracy)')
 
     parser.add_argument('--hard_label', type=str2bool, default=True)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=3e-2)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=5e-4)
-    parser.add_argument('--amp', type=str2bool, default=False, help='use mixed precision training or not')
+    parser.add_argument('--amp', type=str2bool, default=True, help='use mixed precision training or not')
     parser.add_argument('--clip', type=float, default=0)
     '''
     Backbone Net Configurations
@@ -322,7 +322,7 @@ if __name__ == "__main__":
     parser.add_argument('-ds', '--dataset', type=str, default='cifar10')
     parser.add_argument('--train_sampler', type=str, default='RandomSampler')
     parser.add_argument('-nc', '--num_classes', type=int, default=10)
-    parser.add_argument('--num_workers', type=int, default=4)
+    parser.add_argument('--num_workers', type=int, default=2)
 
     '''
     multi-GPUs & Distrbitued Training
@@ -339,9 +339,9 @@ if __name__ == "__main__":
                         help='distributed backend')
     parser.add_argument('--seed', default=1, type=int,
                         help='seed for initializing training. ')
-    parser.add_argument('--gpu', default=None, type=int,
+    parser.add_argument('--gpu', default=0, type=int,
                         help='GPU id to use.')
-    parser.add_argument('--multiprocessing-distributed', type=str2bool, default=True,
+    parser.add_argument('--multiprocessing-distributed', type=str2bool, default=False,
                         help='Use multi-processing distributed training to launch '
                              'N processes per node, which has N GPUs. This is the '
                              'fastest way to use PyTorch for either single node or '
@@ -351,4 +351,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     over_write_args_from_file(args, args.c)
+    from torchvision.datasets import cifar
+    # print("cifar10 download!")
+    # data=cifar.CIFAR10(args.data_dir, download=True)
+    # print("cifar10 download finish!")
     main(args)

@@ -11,7 +11,7 @@ from collections import Counter
 import os
 import contextlib
 from train_utils import AverageMeter
-
+from torchvision.datasets import cifar
 from .flexmatch_utils import consistency_loss, Get_Scalar
 from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
@@ -114,7 +114,7 @@ class FlexMatch:
 
         scaler = GradScaler()
         amp_cm = autocast if args.amp else contextlib.nullcontext
-
+        #contextlib.n
         # eval for once to verify if the checkpoint is loaded correctly
         if args.resume == True:
             eval_dict = self.evaluate(args=args)
@@ -141,9 +141,9 @@ class FlexMatch:
 
             x_lb, x_ulb_w, x_ulb_s = x_lb.cuda(args.gpu), x_ulb_w.cuda(args.gpu), x_ulb_s.cuda(args.gpu)
             x_ulb_idx = x_ulb_idx.cuda(args.gpu)
-            y_lb = y_lb.cuda(args.gpu)
+            y_lb = y_lb.cuda(args.gpu).long()
 
-            pseudo_counter = Counter(selected_label.tolist())
+            pseudo_counter = Counter(selected_label.tolist())#pseudo-label number
             if max(pseudo_counter.values()) < len(self.ulb_dset):  # not all(5w) -1
                 if args.thresh_warmup:
                     for i in range(args.num_classes):
@@ -158,29 +158,30 @@ class FlexMatch:
             inputs = torch.cat((x_lb, x_ulb_w, x_ulb_s))
 
             # inference and calculate sup/unsup losses
-            with amp_cm():
-                logits = self.model(inputs)
-                logits_x_lb = logits[:num_lb]
-                logits_x_ulb_w, logits_x_ulb_s = logits[num_lb:].chunk(2)
-                sup_loss = ce_loss(logits_x_lb, y_lb, reduction='mean')
+            #with amp_cm():
+            logits = self.model(inputs)#all
+            logits_x_lb = logits[:num_lb]#labeled
+            logits_x_ulb_w, logits_x_ulb_s = logits[num_lb:].chunk(2)#labeled strong, labeled weak
+            sup_loss = ce_loss(logits_x_lb, y_lb, reduction='mean')#error
+            #F.cross_entropy(logits_x_lb,y_lb.long(),reduction="mean")
+            # hyper-params for update
+            T = self.t_fn(self.it)
+            p_cutoff = self.p_fn(self.it)
 
-                # hyper-params for update
-                T = self.t_fn(self.it)
-                p_cutoff = self.p_fn(self.it)
+            unsup_loss, mask, select, pseudo_lb, p_model = consistency_loss(logits_x_ulb_s,
+                                                                            logits_x_ulb_w,
+                                                                            classwise_acc,
+                                                                            p_target,
+                                                                            p_model,
+                                                                            'ce', T, p_cutoff,
+                                                                            use_hard_labels=args.hard_label,
+                                                                            use_DA=args.use_DA)
 
-                unsup_loss, mask, select, pseudo_lb, p_model = consistency_loss(logits_x_ulb_s,
-                                                                                logits_x_ulb_w,
-                                                                                classwise_acc,
-                                                                                p_target,
-                                                                                p_model,
-                                                                                'ce', T, p_cutoff,
-                                                                                use_hard_labels=args.hard_label,
-                                                                                use_DA=args.use_DA)
+            if x_ulb_idx[select == 1].nelement() != 0:
+                selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
 
-                if x_ulb_idx[select == 1].nelement() != 0:
-                    selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
-
-                total_loss = sup_loss + self.lambda_u * unsup_loss
+            total_loss = sup_loss + self.lambda_u * unsup_loss
+            # amp()
 
             # parameter updates
             if args.amp:
