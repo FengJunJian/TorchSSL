@@ -264,10 +264,10 @@ if __name__ == "__main__":
     '''
     Saving & loading of the model.
     '''
-    parser.add_argument('--save_dir', type=str, default='./saved_models')
+    parser.add_argument('--save_dir', type=str, default='./saved_models',help="the path to save model")
     parser.add_argument('-sn', '--save_name', type=str, default='flexmatch')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--load_path', type=str, default=None)
+    parser.add_argument('--load_path', type=str, default=None,help="the path to load model")
     parser.add_argument('-o', '--overwrite', action='store_true')
     parser.add_argument('--use_tensorboard', action='store_true', help='Use tensorboard to plot and save curves, otherwise save the curves locally.')
 
@@ -276,15 +276,15 @@ if __name__ == "__main__":
     '''
 
     parser.add_argument('--epoch', type=int, default=1)
-    parser.add_argument('--num_train_iter', type=int, default=2 ** 20,
+    parser.add_argument('--num_train_iter', type=int, default=10000,#2 ** 20,
                         help='total number of training iterations')
-    parser.add_argument('--num_eval_iter', type=int, default=5000,
+    parser.add_argument('--num_eval_iter', type=int, default=2000,#5000
                         help='evaluation frequency')
-    parser.add_argument('-nl', '--num_labels', type=int, default=40)
+    parser.add_argument('-nl', '--num_labels', type=int, default=40,help="the number of labeled samples")#40
     parser.add_argument('-bsz', '--batch_size', type=int, default=64)
     parser.add_argument('--uratio', type=int, default=7,
                         help='the ratio of unlabeled data to labeld data in each mini-batch')
-    parser.add_argument('--eval_batch_size', type=int, default=1024,
+    parser.add_argument('--eval_batch_size', type=int, default=512,
                         help='batch size of evaluation data loader (it does not affect the accuracy)')
 
     parser.add_argument('--hard_label', type=str2bool, default=True)
@@ -318,11 +318,11 @@ if __name__ == "__main__":
     Data Configurations
     '''
 
-    parser.add_argument('--data_dir', type=str, default='./data')
+    parser.add_argument('--data_dir', type=str, default='./data',help="the path to load training data")
     parser.add_argument('-ds', '--dataset', type=str, default='cifar10')
     parser.add_argument('--train_sampler', type=str, default='RandomSampler')
     parser.add_argument('-nc', '--num_classes', type=int, default=10)
-    parser.add_argument('--num_workers', type=int, default=1)
+    parser.add_argument('--num_workers', type=int, default=4)
 
     '''
     multi-GPUs & Distrbitued Training

@@ -173,7 +173,7 @@ class RandAugment:
         for op, min_val, max_val in ops:
             val = min_val + float(max_val - min_val)*random.random()
             img = op(img, val) 
-        cutout_val = random.random() * 0.5 
+        cutout_val = random.random() * 0.1
         img = Cutout(img, cutout_val) #for fixmatch
         return img
 
@@ -184,12 +184,13 @@ if __name__ == '__main__':
     # for item in randaug.augment_list:
     #     print(item)
     import os
+    from matplotlib import pyplot as plt
 
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-    img = PIL.Image.open('./u.jpg')
-    randaug = RandAugment(3,6)
+    img = PIL.Image.open('E:/SeaShips_SMD/JPEGImages/000002.jpg')
+    randaug = RandAugment(2,6)
     img = randaug(img)
-    import matplotlib
-    from matplotlib import pyplot as plt 
+    #import matplotlib
+
     plt.imshow(img)
     plt.show()

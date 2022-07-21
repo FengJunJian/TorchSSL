@@ -123,7 +123,7 @@ class FlexMatch:
         selected_label = torch.ones((len(self.ulb_dset),), dtype=torch.long, ) * -1
         selected_label = selected_label.cuda(args.gpu)
 
-        classwise_acc = torch.zeros((args.num_classes,)).cuda(args.gpu)
+        classwise_acc = torch.zeros((args.num_classes,)).cuda(args.gpu) #% {\sigma _t}\left( c \right)
 
         for (_, x_lb, y_lb), (x_ulb_idx, x_ulb_w, x_ulb_s) in zip(self.loader_dict['train_lb'],
                                                                   self.loader_dict['train_ulb']):
@@ -147,13 +147,13 @@ class FlexMatch:
             if max(pseudo_counter.values()) < len(self.ulb_dset):  # not all(5w) -1
                 if args.thresh_warmup:
                     for i in range(args.num_classes):
-                        classwise_acc[i] = pseudo_counter[i] / max(pseudo_counter.values())
+                        classwise_acc[i] = pseudo_counter[i] / max(pseudo_counter.values()) # update classwise_acc
                 else:
                     wo_negative_one = deepcopy(pseudo_counter)
                     if -1 in wo_negative_one.keys():
                         wo_negative_one.pop(-1)
                     for i in range(args.num_classes):
-                        classwise_acc[i] = pseudo_counter[i] / max(wo_negative_one.values())
+                        classwise_acc[i] = pseudo_counter[i] / max(wo_negative_one.values()) # 各类分类精度
 
             inputs = torch.cat((x_lb, x_ulb_w, x_ulb_s))
 
