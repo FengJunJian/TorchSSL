@@ -29,7 +29,7 @@ def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce'
         pass
 
     elif name == 'ce':
-        pseudo_label = torch.softmax(logits_w, dim=-1)
+        pseudo_label = torch.softmax(logits_w, dim=-1)#weak softmax
         if use_DA:
             if p_model == None:
                 p_model = torch.mean(pseudo_label.detach(), dim=0)
@@ -41,7 +41,7 @@ def consistency_loss(logits_s, logits_w, class_acc, p_target, p_model, name='ce'
         max_probs, max_idx = torch.max(pseudo_label, dim=-1)
         # mask = max_probs.ge(p_cutoff * (class_acc[max_idx] + 1.) / 2).float()  # linear
         # mask = max_probs.ge(p_cutoff * (1 / (2. - class_acc[max_idx]))).float()  # low_limit
-        mask = max_probs.ge(p_cutoff * (class_acc[max_idx] / (2. - class_acc[max_idx]))).float()  # convex
+        mask = max_probs.ge(p_cutoff * (class_acc[max_idx] / (2. - class_acc[max_idx]))).float()  # convex function, where [p_cutoff=tau ]
         # mask = max_probs.ge(p_cutoff * (torch.log(class_acc[max_idx] + 1.) + 0.5)/(math.log(2) + 0.5)).float()  # concave
         select = max_probs.ge(p_cutoff).long()
         if use_hard_labels:

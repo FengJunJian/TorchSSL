@@ -96,7 +96,7 @@ class FlexMatch:
             p_target = None
         else:
             with open(dist_file_name, 'r') as f:
-                p_target = json.loads(f.read())
+                p_target = json.loads(f.read())#类别分布
                 p_target = torch.tensor(p_target['distribution'])
                 p_target = p_target.cuda(args.gpu)
             # print('p_target:', p_target)

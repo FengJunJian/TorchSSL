@@ -265,9 +265,9 @@ if __name__ == "__main__":
     Saving & loading of the model.
     '''
     parser.add_argument('--save_dir', type=str, default='./saved_models',help="the path to save model")
-    parser.add_argument('-sn', '--save_name', type=str, default='flexmatch')
+    parser.add_argument('-sn', '--save_name', type=str, default='flexmatch_useDA')
     parser.add_argument('--resume', action='store_true',default=True)
-    parser.add_argument('--load_path', type=str, default='./saved_models/flexmatch/model_best.pth',help="the path to load model")
+    parser.add_argument('--load_path', type=str, default='./saved_models/flexmatch_useDA/model_best.pth',help="the path to load model")
     parser.add_argument('-o', '--overwrite', action='store_true',default=True)
     parser.add_argument('--use_tensorboard', action='store_true', help='Use tensorboard to plot and save curves, otherwise save the curves locally.')
 
@@ -281,10 +281,10 @@ if __name__ == "__main__":
     parser.add_argument('--num_eval_iter', type=int, default=2000,#5000
                         help='evaluation frequency')
     parser.add_argument('-nl', '--num_labels', type=int, default=40,help="the number of labeled samples")#40
-    parser.add_argument('-bsz', '--batch_size', type=int, default=14)
+    parser.add_argument('-bsz', '--batch_size', type=int, default=32)
     parser.add_argument('--uratio', type=int, default=1,
                         help='the ratio of unlabeled data to labeld data in each mini-batch')
-    parser.add_argument('--eval_batch_size', type=int, default=16,#512
+    parser.add_argument('--eval_batch_size', type=int, default=32,#512
                         help='batch size of evaluation data loader (it does not affect the accuracy)')
 
     parser.add_argument('--hard_label', type=str2bool, default=True)
@@ -292,7 +292,7 @@ if __name__ == "__main__":
     parser.add_argument('--p_cutoff', type=float, default=0.95)
     parser.add_argument('--ema_m', type=float, default=0.999, help='ema momentum for eval_model')
     parser.add_argument('--ulb_loss_ratio', type=float, default=1.0)
-    parser.add_argument('--use_DA', type=str2bool, default=False)
+    parser.add_argument('--use_DA', type=str2bool, default=True)
     parser.add_argument('-w', '--thresh_warmup', type=str2bool, default=True)
 
     '''
